@@ -1,79 +1,48 @@
 import React, { Component } from 'react';
-//import axios from 'axios';
-// Using axios instance
-import axios from '../../axios'; 
-
-import Post from '../../components/Post/Post';
-import FullPost from '../../components/FullPost/FullPost';
-import NewPost from '../../components/NewPost/NewPost';
 import './Blog.css';
+import '../Blog/Posts/Posts';
+import Posts from './Posts/Posts';
+//routing
+import { Route, NavLink, Switch, Redirect } from 'react-router-dom';
+// import NewPost from '../Blog/NewPost/NewPost';
+// using lazy loading to load NewPost instead 
+import asyncComponent from '../..//hoc/asyncComponent';
+// import(); This means, whatever is within the parenthesis is only imported
+// whenever the function (()=>{return import();) is executed, 
+// the function gets executed when we render AsyncNewPost to the screen
+const AsyncNewPost = asyncComponent(()=>{
+  return import('../Blog/NewPost/NewPost');
+});
 
 class Blog extends Component {
-
-    state = {
-        posts:[],
-        selectedPostId:null,
-        error:false
-    }
-
-    // The componentDidMount life cycle hook is the place were http request go
-    componentDidMount(){
-        axios.get('/posts')
-        .then(response =>{
-            const posts = response.data.slice(0,4);
-            const updatedPosts = posts.map(post=>{
-                return {
-                    ...post,
-                    author:'Yidah'
-                }
-            });
-            // So componentDidMount is the place for causing side effects but not for updating state since it triggers a re-render.
-            // However we updated the state here once the HTTP request has gone and got us new data because we actually want to re-update the page,
-            // so here this is actually a wanted behavior
-            this.setState({posts:updatedPosts})
-            // console.log(response);
-        })
-        .catch(error => {
-            // console.log(error);
-            this.setState({error:true});
-        });
-    }
-
-    postSelectedHandler = (id)=>{
-        this.setState({selectedPostId: id})
-
-    }
-
-    render () {
-        let posts = <p style={{textAlign:"center"}}>Something went wrong!</p>
-
-        if(!this.state.error){
-            posts = this.state.posts.map(post => {
-                return <Post  
-                        key={post.id} 
-                        title={post.title}
-                        author={post.author}
-                        clicked={()=>this.postSelectedHandler(post.id)}/>
-            });
-
-        }
-
-
-        return (
-            <div>
-                <section className="Posts">
-                    {posts}
-
-                </section>
-                <section>
-                    <FullPost id={this.state.selectedPostId} />
-                </section>
-                <section>
-                    <NewPost />
-                </section>
-            </div>
-        );
-    }
+  render() {
+    return (
+      <div className="Blog">
+        <header>
+          <nav>
+            <ul>
+              {/* We use Link/NavLink(can add styles) to prevent default behavior 
+                and reloading the page everytime we click a link 
+                NOTE: the exact in the NavLink refers to the css active class only applied to the "/" */}
+              <li>
+                <NavLink to="/posts/" exact>
+                  Posts
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/new-post">New Post</NavLink>
+              </li>
+            </ul>
+          </nav>
+        </header>
+        <Switch>
+          <Route path="/new-post" component={AsyncNewPost} />
+          <Route path="/posts" component={Posts} />
+          <Redirect from="/" to="/posts" />
+        </Switch>
+      </div>
+    );
+  }
 }
 
 export default Blog;

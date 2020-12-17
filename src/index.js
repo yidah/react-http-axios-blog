@@ -13,7 +13,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/json';
 // Register axios interceptors
 // shared accross all files so it affects all requests in the app
 axios.interceptors.request.use(requestConfig => {
-    console.log(requestConfig);
+    // console.log(requestConfig);
     return requestConfig;
 
 }, error=>{
@@ -24,7 +24,7 @@ axios.interceptors.request.use(requestConfig => {
 });
 
 axios.interceptors.response.use(responseConfig=>{
-    console.log(responseConfig);
+    // console.log(responseConfig);
     return responseConfig;
 }, error =>{
     // Handling response errors
